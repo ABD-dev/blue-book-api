@@ -1,12 +1,26 @@
 <?php
 
-use Illuminate\Http\Request;
+use Dingo\Api\Routing\Router;
 
-/* Public routes */
-Route::get('/', function(){ return 'Blue Book API v'.env('APP_VERSION', '0.0.0'); });
-Route::post('authenticate', 'AuthenticateController@authenticate');
+/** @var Router $api */
+$api = app(Router::class);
 
-/* Protected routes - need to be authenticated */
-Route::group(['middleware' => 'jwt.auth'], function(){
-  Route::get('/user/me', 'UserController@me');
+$api->version('v1', ['middleware' => 'cors'], function (Router $api) {
+
+    $api->get('/', function(){
+      return response()->json([
+        'message' => 'Blue Book Api '.env('API_VERSION')
+      ]);
+    });
+
+    $api->post('authenticate', 'App\\Http\\Controllers\\AuthenticateController@authenticate');
+
+    $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
+
+      $api->group(['prefix' => 'user'], function(Router $api) {
+        $api->get('me', 'App\\Http\\Controllers\\UserController@me');
+      });
+
+    });
+
 });
