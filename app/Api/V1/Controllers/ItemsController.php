@@ -14,10 +14,15 @@ class ItemsController extends Controller
 {
   use Helpers;
 
-  public function index() {
+  public function index(Request $request) {
     $currentUser = JWTAuth::parseToken()->authenticate();
     return $currentUser
         ->items()
+        ->if($request->barcode, 'barcode', '=', $request->barcode)
+        ->if($request->name, 'name', '=', $request->name)
+        ->when($request->only, function($query) use ($request) {
+          return $query->select([$request->only]);
+        })
         ->orderBy('created_at', 'DESC')
         ->get()
         ->toArray();
@@ -28,6 +33,7 @@ class ItemsController extends Controller
 
     $item = new Item;
 
+    $item->barcode = $request->get('barcode');
     $item->name = $request->get('name');
     $item->description = $request->get('description');
     $item->amount_in = $request->get('amount_in');
@@ -86,5 +92,14 @@ class ItemsController extends Controller
       return $this->response->error('Could not delete item', 500);
     }
   }
+
+  // public function ItemsListName() {
+  //   $currentUser = JWTAuth::parseToken()->authenticate();
+  //   return $currentUser
+  //       ->items()
+  //       ->orderBy('name', 'ASC')
+  //       ->get(['name'])
+  //       ->toArray();
+  // }
 
 }

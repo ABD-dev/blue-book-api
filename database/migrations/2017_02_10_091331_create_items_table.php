@@ -16,10 +16,11 @@ class CreateItemsTable extends Migration
       Schema::create('items', function (Blueprint $table) {
 
         $table->increments('id');
+        $table->string('barcode')->nullable();
         $table->string('name');
         $table->text('description')->nullable();
         $table->integer('amount_in');
-        $table->integer('amount_out')->default(0);
+        $table->integer('amount_out')->default(0)->nullable();
         $table->integer('value_in')->nullable();
         $table->integer('value_out')->nullable();
         $table->date('expiry_date')->nullable();
